@@ -1,0 +1,53 @@
+/*  `launch.json` 是一个 JSON 文件，用于配置 Visual Studio Code (VSCode) 中的调试环境。这个文件是由
+VSCode 的 CMake 扩展自动生成的，也可以手动创建。
+*/
+{
+    /*  version:调试环境的版本
+        configurations：一个数组，包含了一些调试配置选项
+        name:调试配置的名称
+        type:调试配置的类型，可以是 "cppdbg" 或其他类型。
+        request:调试请求的类型，可以是 "launch" 或其他方式。
+        program:要调试的可执行文件路径,exe文件路径
+        args:可执行文件运行时的命令行参数
+        stopAtEntry:是否在程序启动时停止,false表示运行到断点处停止
+        cwd:调试程序的工作目录
+        environment:环境变量
+        externalConsole:是否使用外部控制台
+        MIMode:调试器的类型，可以是 "gdb" 或其他类型。
+        miDebuggerPath:调试器的路径
+        preLaunchTask:编译任务的名称，调用tasks.json里面的任务，与tasks.json里面的label一致
+        setupCommands:一些额外的命令，比如启用整齐打印或设置反汇编风格
+    */
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "g++.exe",
+            "type": "cppdbg", 
+            "request": "launch",
+            "program": "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",//${fileBasenameNoExtension}
+            //            "program": "${command:cmake.launchTargetPath}", //${fileBasenameNoExtension}
+            //如果用上面这条program的设置，可以一键调试，需要注释preLaunchTask同时可以不需要编写tasks.json，需要安装cmake Tool插件
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,//是否有黑框框
+            "MIMode": "gdb",  
+            "miDebuggerPath": "E:/MinGW64/bin/gdb.exe", //调试器地址
+            "preLaunchTask": "Build", //预编译，调用tasks.json,与tasks.json里面的label一致
+            "setupCommands": [
+                {
+                     "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+
+        }
+    ]
+}

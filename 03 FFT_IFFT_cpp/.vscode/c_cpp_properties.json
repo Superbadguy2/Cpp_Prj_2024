@@ -1,0 +1,37 @@
+/*  `c_cpp_properties.json` 是一个 JSON 文件
+    用于配置 Visual Studio Code (VSCode) 中的 C/C++ 编程环境
+    这个文件是由 VSCode 的 C/C++ 扩展自动生成的，或者可以手动创建。
+*/
+{
+    /*  "configurations":一个数组，包含了一些配置选项。
+        目前只有一个配置选项叫做 "Win32"。
+        name：配置选项的名称。
+        includePath：指定了包括路径，这是 VSCode 中 C/C++ 的编程环境所需的
+        defines：指定了预处理器定义列表，这些定义会在编译时被使用。
+        compilerPath：指定了编译器的路径，这里我们使用的是 MinGW64 的 gcc.exe。
+        cStandard：指定了 C 语言的标准，这里我们使用的是 C17。
+        cppStandard：指定了 C++ 语言的标准，这里我们使用的是 GNU++14。
+        cStandard 和 cppStandard：指定了标准库版本。
+        intelliSenseMode：指定了 IntelliSense 模式。
+    */
+    "configurations": [
+        {
+            "name": "Win32",
+            // "name": "GCC",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "E:\\MinGW64\\bin\\gcc.exe",
+            "cStandard": "c17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x64"
+        }
+    ],
+    "version": 4
+}

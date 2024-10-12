@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "D:/06 C_Cpp_Project/02 Julia_C_test/out/build/x64-Debug/CMakeFiles/main.dir/embed.manifest"
