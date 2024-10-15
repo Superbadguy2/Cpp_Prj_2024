@@ -1,4 +1,4 @@
-#include "fft_ifft.h"
+#include "../include/fft_ifft.h"
 
 //构造函数
 Sample_Data::Sample_Data()
@@ -29,9 +29,8 @@ std::vector<Sample_Data::cpd> Sample_Data::Recursive_fft1(std::vector<cpd>& x){
     if(x.size() == 1) return x; // 只有一个采样点，fft结果就是该点
     // n大于1时，递归，将x分成两个子序列X_e和X_o，分别对子序列进行fft
     std::vector<cpd> X_e(x.size()/2) , X_o(x.size()/2);
-    for(int i = 0; 
-			i < static_cast<int>(x.size()/2); 
-			i++) {// 将x分成两个子序列X_e和X_o
+    for(int i = 0; i < static_cast<int>(x.size()/2); i++) 
+	{// 将x分成两个子序列X_e和X_o
         X_e[i] = x[2*i];
         X_o[i] = x[2*i+1];
     }
@@ -42,9 +41,8 @@ std::vector<Sample_Data::cpd> Sample_Data::Recursive_fft1(std::vector<cpd>& x){
     std::vector<cpd> X_fft(x.size());
     cpd delta_w(cos(-2*pi/x.size()), sin(-2*pi/x.size())); // 计算旋转因子
 
-    for(int i = 0;
-			i < static_cast<int>(x.size()/2);
-		   	i++) {       
+    for(int i = 0; i < static_cast<int>(x.size()/2); i++)
+	{       
         X_fft[i] = X_e_fft[i] + pow(delta_w,i) * X_o_fft[i];
         X_fft[i+x.size()/2] = X_e_fft[i] - pow(delta_w,i) * X_o_fft[i];
     }
@@ -56,7 +54,8 @@ std::vector<Sample_Data::cpd> Sample_Data::Recursive_fft1(std::vector<cpd>& x){
     output: 蝴蝶变换结果
     algorithmic complexity：
 */
-std::vector<Sample_Data::cpd> Sample_Data::X_butterfly(std::vector<cpd>& x){
+std::vector<Sample_Data::cpd> Sample_Data::X_butterfly(std::vector<cpd>& x)
+{
     unsigned long n = x.size(); // 获取数据长度
     // 验证数据长度是否为2的幂
     if(n & (n-1)){
@@ -102,7 +101,8 @@ unsigned int Sample_Data::_32bit_reverse(unsigned int x)
     output: 8位整数x为反转顺序的序号
     algorithmic complexity：
 */
-unsigned int Sample_Data::_8bit_reverse(unsigned int x){
+unsigned int Sample_Data::_8bit_reverse(unsigned int x)
+{
     x = (((x & 0xaa) >> 1) | ((x & 0x55) << 1));
     x = (((x & 0xcc) >> 2) | ((x & 0x33) << 2));
     return ((x >> 4) | (x << 4));
@@ -212,9 +212,10 @@ unsigned long Sample_Data::Get_UpPadding_length(std::vector<cpd> &x)
     output: 频率轴
     algorithmic complexity：
 */
-std::vector<double> Sample_Data::Get_Frequency_Axis(std::vector<cpd> &x
-    , unsigned long Fs
-    , unsigned long Nfft)
+std::vector<double> Sample_Data::Get_Frequency_Axis(
+	std::vector<cpd> &x, 
+	unsigned long Fs, 
+	unsigned long Nfft)
 {
     std::vector<double> Frequency_Axis(Nfft);   // 定义频率轴
     std::iota(Frequency_Axis.begin()            // 填充频率轴

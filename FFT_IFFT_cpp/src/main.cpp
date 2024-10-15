@@ -1,4 +1,4 @@
-#include "fft_ifft.h"
+#include "../include/fft_ifft.h"
 
 int main(){
     Sample_Data sample; // 创建一个 Sample_Data 的实例
