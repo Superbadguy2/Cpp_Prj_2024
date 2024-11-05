@@ -1,0 +1,33 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BUILD_DIR	Makefile	/^BUILD_DIR = build$/;"	m
+CC	Makefile	/^CC = gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -O2 -g -Wall -Wextra -ggdb$/;"	m
+CMD_STR_NUM	include/StrParsing.h	15;"	d
+CmdMatchTable	src/String_Parsing.c	/^static const Cmd_Match_Table CmdMatchTable = {$/;"	v	file:
+Cmd_Match_Table	include/StrParsing.h	/^}Cmd_Match_Table;$/;"	t	typeref:struct:__anon1
+ERROR	include/StrParsing.h	22;"	d
+INC_DIR	Makefile	/^INC_DIR = include$/;"	m
+OBJ_FILES	Makefile	/^OBJ_FILES = $(patsubst $(SRC_DIR)\/%.c,$(BUILD_DIR)\/%.o,$(SRC_FILES))$/;"	m
+PARSED_CMD_NUM	include/StrParsing.h	17;"	d
+SRC_DIR	Makefile	/^SRC_DIR = src$/;"	m
+SRC_FILES	Makefile	/^SRC_FILES = $(wildcard $(SRC_DIR)\/*.c)$/;"	m
+STRPARSING_H	include/StrParsing.h	2;"	d
+SUBCMD_NUM	include/StrParsing.h	16;"	d
+SUB_CMD0_NUM	include/StrParsing.h	18;"	d
+SUB_CMD1_NUM	include/StrParsing.h	19;"	d
+SUCCESS	include/StrParsing.h	21;"	d
+TARGET	Makefile	/^TARGET = $(BUILD_DIR)\/elf$/;"	m
+cmd0_match_table_result	src/String_Parsing.c	/^int cmd0_match_table_result[6] = {0};$/;"	v
+cmd1_match_table_result	src/String_Parsing.c	/^int cmd1_match_table_result[2] = {0};$/;"	v
+cmd_delim	src/String_Parsing.c	/^static const char* cmd_delim = " ";$/;"	v	file:
+cmd_match	src/String_Parsing.c	/^int cmd_match(char*** cmd_parsed){$/;"	f
+cmd_read	src/String_Parsing.c	/^char* cmd_read(char **str_ptr){$/;"	f
+main	src/main.c	/^int main(int argc, char *argv[]){$/;"	f
+par_cmd	src/String_Parsing.c	/^char** par_cmd(char ***cmd_parsed , char **cmd_str){$/;"	f
+sub_cmd0	include/StrParsing.h	/^	char* sub_cmd0[SUB_CMD0_NUM];$/;"	m	struct:__anon1
+sub_cmd1	include/StrParsing.h	/^	char* sub_cmd1[SUB_CMD1_NUM];$/;"	m	struct:__anon1

@@ -4,7 +4,7 @@
 CC = gcc
 
 # Compiler flags
-CFLAGS = -O2 -ggdb -Wall -Wextra
+CFLAGS = -O2 -g -Wall -Werror -Wextra -ggdb
 
 # Target executable
 TARGET = 2Darray
