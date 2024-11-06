@@ -1,6 +1,8 @@
 #include "../include/StrParsing.h"
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+
 
 static const char* cmd_delim = " ";
 
@@ -21,6 +23,16 @@ static const Cmd_Match_Table CmdMatchTable = {
 };
 int cmd0_match_table_result[6] = {0};
 int cmd1_match_table_result[2] = {0};
+
+/* 初始化函数指针数组 */
+operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM] = {
+	SGDB_OP_StepExec,
+	SGDB_OP_PrintStatus,
+	SGDB_OP_ScanMem,
+	SGDB_OP_ExprEval,
+	SGDB_OP_SetMoniPoi,
+	SGDB_OP_DelMoniPoi
+};
 
 /* func name: cmd_read
  * desc: 输入字符串指针地址，读取一行字符串并函数字符串指针
@@ -91,34 +103,49 @@ char** par_cmd(char ***cmd_parsed , char **cmd_str){
  *     int: 返回值，指示成功或失败
  *  */
 int cmd_match(char*** cmd_parsed){
-	int ret = ERROR;
-	ret = cmd0_match(cmd_parsed);
-	if(ret == SUCCESS){
-		if(cmd0_match_table_result[1] == 1){
-			ret = cmd1_match(cmd_parsed);
-			if(ret == SUCCESS){
-				return SUCCESS;
-			}else{
+	int ret = -1;
+	cmd0_match(cmd_parsed, &ret);
+	if( ret != ERROR){
+		switch (ret) {
+			case 0:
+				if(SGDB_OPs[0](cmd_parsed) == SUCCESS){
+					return SUCCESS;
+				}
+				break;
+					
+			default:
 				return ERROR;
-			}
-		}else{
-			return SUCCESS;
 		}
 	}
 	return ERROR;
 }
 
-int cmd0_match(char*** cmd_parsed){
+/* func name: cmd0_match
+ * desc: 对解析后的第一个命令进行匹配
+ * para:
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功或失败
+ *  */
+static int cmd0_match(char*** cmd_parsed,int* ret){
 	for(int i = 0 ; i < SUB_CMD0_NUM ; i++){
 		if(strcmp((*cmd_parsed)[0] , CmdMatchTable.sub_cmd0[i]) == 0){
 			cmd0_match_table_result[i] = 1;
+			*ret = i;
 			return SUCCESS;
 		}
 	}
 	return ERROR;
 }
 
-int cmd1_match(char*** cmd_parsed){
+/* func name: cmd1_match
+ * desc: 对解析后的第二个命令进行匹配
+ * para:
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功或失败
+ *  */
+static int cmd1_match(char*** cmd_parsed){
 	for(int i = 0 ; i < SUB_CMD1_NUM ; i++){
 		if(strcmp((*cmd_parsed)[1] , CmdMatchTable.sub_cmd1[i]) == 0){
 			cmd1_match_table_result[i] = 1;
@@ -127,3 +154,76 @@ int cmd1_match(char*** cmd_parsed){
 	}
 	return ERROR;
 }
+
+/* func name: SGDB_OP_StepExec
+ * desc: 单步执行，执行次数为N
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_StepExec(char*** cmd_parsed){
+	// 具体内容
+	return SUCCESS;
+}
+
+/* func name: SGDB_OP_PrintStatus 
+ * desc: 打印程序状态
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_PrintStatus(char ***cmd_parsed){
+	// 具体内容
+	return SUCCESS;
+}
+
+/* func name: SGDB_OP_ScanMem 
+ * desc: 扫描内存 
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_ScanMem(char ***cmd_parsed){
+	// 具体内容
+	return SUCCESS;
+}
+
+/* func name: SGDB_OP_ExprEval 
+ * desc: 表达式求值
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_ExprEval(char ***cmd_parsed){
+	// 具体内容
+	return ERROR;
+}
+
+/* func name: SGDB_OP_SetMoniPoi 
+ * desc: 设置监视点
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_SetMoniPoi(char ***cmd_parsed){
+	// 具体内容
+	return SUCCESS;
+}
+
+/* func name: SGDB_OP_DelMoniPoi  
+ * desc: 删除监视点
+ * para: 
+ *     cmd_parsed: 二维指针地址
+ * ret:
+ *     int: 返回值，指示成功or失败
+ *  */
+int SGDB_OP_DelMoniPoi(char ***cmd_parsed){
+	// 具体内容
+	return SUCCESS;
+}
+

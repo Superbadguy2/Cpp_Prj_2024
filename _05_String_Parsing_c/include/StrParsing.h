@@ -6,12 +6,22 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+/* 别名定义 */
+typedef int (*operation_SGDB_func)(char***);
+
 /* 函数声明 */
 char* cmd_read(char **str_ptr);
 char** par_cmd(char ***cmd_parsed, char **cmd_str);
 int cmd_match(char*** cmd_parsed);
-int cmd0_match(char*** cmd_parsed);
-int cmd1_match(char*** cmd_parsed);
+/* static int cmd0_match(char*** cmd_parsed,int* ret); */
+/* static int cmd1_match(char*** cmd_parsed); */
+
+int SGDB_OP_StepExec(char*** cmd_parsed);
+int SGDB_OP_PrintStatus(char*** cmd_parsed);
+int SGDB_OP_ScanMem(char*** cmd_parsed);
+int SGDB_OP_ExprEval(char*** cmd_parsed);
+int SGDB_OP_SetMoniPoi(char*** cmd_parsed);
+int SGDB_OP_DelMoniPoi(char*** cmd_parsed);
 
 /* 宏定义 */
 #define CMD_STR_NUM 32 * 3
@@ -20,13 +30,16 @@ int cmd1_match(char*** cmd_parsed);
 #define SUB_CMD0_NUM 6
 #define SUB_CMD1_NUM 2
 
-#define SUCCESS 0
-#define ERROR 1
+#define SUCCESS 1
+#define ERROR 0
 
 /* 结构体与类型定义 */
 typedef struct {
 	char* sub_cmd0[SUB_CMD0_NUM];
 	char* sub_cmd1[SUB_CMD1_NUM];
 }Cmd_Match_Table;
+
+/* 外部变量声明 */
+extern operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM];
 
 #endif

@@ -3,9 +3,21 @@ import subprocess
 test_cases = [
     (["info w"], "match success!\n"),
     (["info r"], "match success!\n"),
+
     (["info a"], "match failed!\n"),
     (["info  364d"], "match failed!\n"),
-    (["info     "], "match failed!\n")
+    (["info     \r"], "match failed!\n"),
+
+    (["si 10"], "match success!\n"),
+    (["si 10086"], "match success!\n"),
+    (["si 0"], "match success!\n"),
+    (["si "], "match success!\n"),
+
+    (["si -10"], "match failed!\n"),
+    (["si -0"], "match failed!\n"),
+    (["si abc"], "match failed!\n"),
+    (["si abc"], "match failed!\n")
+
 ]
 
 def run_test(command, expected_output):
