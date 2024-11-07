@@ -21,8 +21,6 @@ static const Cmd_Match_Table CmdMatchTable = {
 		"w"
 	}
 };
-int cmd0_match_table_result[6] = {0};
-int cmd1_match_table_result[2] = {0};
 
 /* 初始化函数指针数组 */
 operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM] = {
@@ -96,26 +94,18 @@ char** par_cmd(char ***cmd_parsed , char **cmd_str){
 }
 
 /* func name: cmd_match
- * desc: 对解析后的命令进行匹配，使用一个确定的命令表进行匹配，匹配成功则返回SUCCESS，匹配失败则返回ERROR
+ * desc: sgdb_op_index是命令行函数指针的索引，用于标识执行哪一个命令行函数
  * para: 
  *     cmd_parsed: 二维指针地址，将其第一和第二个输入命令与命令匹配表进行匹配
  * ret: 
  *     int: 返回值，指示成功或失败
  *  */
 int cmd_match(char*** cmd_parsed){
-	int ret = -1;
-	cmd0_match(cmd_parsed, &ret);
-	if( ret != ERROR){
-		switch (ret) {
-			case 0:
-				if(SGDB_OPs[0](cmd_parsed) == SUCCESS){
-					return SUCCESS;
-				}
-				break;
-					
-			default:
-				return ERROR;
-		}
+	int sgdb_op_index = -1;
+	/* 首先判断第一个命令是否符合格式标准。符合则进一步判断与执行，否则返回错误 */
+	if( cmd0_match(cmd_parsed, &sgdb_op_index) == SUCCESS &&
+		SGDB_OPs[sgdb_op_index](cmd_parsed) == SUCCESS){
+		return SUCCESS;			
 	}
 	return ERROR;
 }
@@ -127,28 +117,10 @@ int cmd_match(char*** cmd_parsed){
  * ret:
  *     int: 返回值，指示成功或失败
  *  */
-static int cmd0_match(char*** cmd_parsed,int* ret){
+int cmd0_match(char*** cmd_parsed,int* args){
 	for(int i = 0 ; i < SUB_CMD0_NUM ; i++){
 		if(strcmp((*cmd_parsed)[0] , CmdMatchTable.sub_cmd0[i]) == 0){
-			cmd0_match_table_result[i] = 1;
-			*ret = i;
-			return SUCCESS;
-		}
-	}
-	return ERROR;
-}
-
-/* func name: cmd1_match
- * desc: 对解析后的第二个命令进行匹配
- * para:
- *     cmd_parsed: 二维指针地址
- * ret:
- *     int: 返回值，指示成功或失败
- *  */
-static int cmd1_match(char*** cmd_parsed){
-	for(int i = 0 ; i < SUB_CMD1_NUM ; i++){
-		if(strcmp((*cmd_parsed)[1] , CmdMatchTable.sub_cmd1[i]) == 0){
-			cmd1_match_table_result[i] = 1;
+			*args = i;
 			return SUCCESS;
 		}
 	}
@@ -156,14 +128,29 @@ static int cmd1_match(char*** cmd_parsed){
 }
 
 /* func name: SGDB_OP_StepExec
- * desc: 单步执行，执行次数为N
+ * desc: 单步执行，执行次数为N.strtol将字符串转换为长整型long int,判断字符是否为数字;将字符转换为数字;判断字符是否为整数且在合理范围内;
  * para: 
  *     cmd_parsed: 二维指针地址
  * ret:
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_StepExec(char*** cmd_parsed){
-	// 具体内容
+	if((*cmd_parsed)[1] == NULL){
+		// 执行一次
+		return SUCCESS;
+	}
+
+	char* endptr;
+	long ret = strtol((*cmd_parsed)[1] , &endptr , 10);
+	if( endptr == (*cmd_parsed)[1] ){
+		return ERROR;	// no digits were found	
+	}
+	if( *endptr == '\0' && // 判断是否指向字符串末尾
+		ret <= 65535 &&	// 判断是否在合理范围内
+		ret >=0){
+		// 执行N次
+
+	}
 	return SUCCESS;
 }
 

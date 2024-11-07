@@ -16,7 +16,9 @@ test_cases = [
     (["si -10"], "match failed!\n"),
     (["si -0"], "match failed!\n"),
     (["si abc"], "match failed!\n"),
-    (["si abc"], "match failed!\n")
+    (["si abc"], "match failed!\n"),
+    (["si 1.23"], "match failed!\n"),
+    (["si -0.23"], "match failed!\n")
 
 ]
 

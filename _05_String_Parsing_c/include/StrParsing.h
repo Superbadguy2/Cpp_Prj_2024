@@ -13,8 +13,7 @@ typedef int (*operation_SGDB_func)(char***);
 char* cmd_read(char **str_ptr);
 char** par_cmd(char ***cmd_parsed, char **cmd_str);
 int cmd_match(char*** cmd_parsed);
-/* static int cmd0_match(char*** cmd_parsed,int* ret); */
-/* static int cmd1_match(char*** cmd_parsed); */
+int cmd0_match(char*** cmd_parsed,int* args);
 
 int SGDB_OP_StepExec(char*** cmd_parsed);
 int SGDB_OP_PrintStatus(char*** cmd_parsed);
