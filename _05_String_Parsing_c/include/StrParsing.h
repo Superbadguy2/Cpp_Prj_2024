@@ -28,6 +28,7 @@ int SGDB_OP_DelMoniPoi(char*** cmd_parsed);
 #define PARSED_CMD_NUM 32
 #define SUB_CMD0_NUM 6
 #define SUB_CMD1_NUM 2
+#define MONI_POI_NUM 20		// 监视点数量，最多20个
 
 #define SUCCESS 1
 #define ERROR 0
@@ -37,6 +38,11 @@ typedef struct {
 	char* sub_cmd0[SUB_CMD0_NUM];
 	char* sub_cmd1[SUB_CMD1_NUM];
 }Cmd_Match_Table;
+
+typedef struct {
+	u_int8_t MoniPoiCount;
+	u_int32_t* MoniPois[MONI_POI_NUM];
+}Monitor_Point;
 
 /* 外部变量声明 */
 extern operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM];

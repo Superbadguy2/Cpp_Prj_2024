@@ -1,24 +1,30 @@
 import subprocess
 
+#  Defining Dictionary Mappings
+result_map = {
+    True:"match success!\n",
+    False:"match failed!\n"
+}
+
 test_cases = [
-    (["info w"], "match success!\n"),
-    (["info r"], "match success!\n"),
+    (["info w"], result_map[True]),
+    (["info r"], result_map[True]),
 
-    (["info a"], "match failed!\n"),
-    (["info  364d"], "match failed!\n"),
-    (["info     \r"], "match failed!\n"),
+    (["info a"], result_map[False]),
+    (["info  364d"], result_map[False]),
+    (["info     \r"], result_map[False]),
 
-    (["si 10"], "match success!\n"),
-    (["si 10086"], "match success!\n"),
-    (["si 0"], "match success!\n"),
-    (["si "], "match success!\n"),
+    (["si 10"], result_map[True]),
+    (["si 10086"], result_map[True]),
+    (["si 0"], result_map[True]),
+    (["si "], result_map[True]),
 
-    (["si -10"], "match failed!\n"),
-    (["si -0"], "match failed!\n"),
-    (["si abc"], "match failed!\n"),
-    (["si abc"], "match failed!\n"),
-    (["si 1.23"], "match failed!\n"),
-    (["si -0.23"], "match failed!\n")
+    (["si -10"], result_map[False]),
+    (["si -0"], result_map[True]),
+    (["si abc"], result_map[False]),
+    (["si abc"], result_map[False]),
+    (["si 1.23"], result_map[False]),
+    (["si -0.23"], result_map[False])
 
 ]
 

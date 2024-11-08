@@ -3,6 +3,8 @@
 #include <string.h>
 #include <sys/types.h>
 
+static int Str2Digital(u_int32_t* N , char*** argv ,
+				u_int32_t MinNum, u_int32_t MaxNum);
 
 static const char* cmd_delim = " ";
 
@@ -22,6 +24,11 @@ static const Cmd_Match_Table CmdMatchTable = {
 	}
 };
 
+/* 声明监视点结构体指针 */
+static Monitor_Point MoniPoi = {
+	.MoniPoiCount = 0
+};
+
 /* 初始化函数指针数组 */
 operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM] = {
 	SGDB_OP_StepExec,
@@ -31,6 +38,8 @@ operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM] = {
 	SGDB_OP_SetMoniPoi,
 	SGDB_OP_DelMoniPoi
 };
+
+u_int8_t MoniPoiCount = 0;
 
 /* func name: cmd_read
  * desc: 输入字符串指针地址，读取一行字符串并函数字符串指针
@@ -139,31 +148,34 @@ int SGDB_OP_StepExec(char*** cmd_parsed){
 		// 执行一次
 		return SUCCESS;
 	}
+	u_int32_t N = 0;
+	if(Str2Digital(&N , cmd_parsed , 0 , 65535) == SUCCESS){
 
-	char* endptr;
-	long ret = strtol((*cmd_parsed)[1] , &endptr , 10);
-	if( endptr == (*cmd_parsed)[1] ){
-		return ERROR;	// no digits were found	
+		return SUCCESS;	
+	}else {
+		return ERROR;
 	}
-	if( *endptr == '\0' && // 判断是否指向字符串末尾
-		ret <= 65535 &&	// 判断是否在合理范围内
-		ret >=0){
-		// 执行N次
-
-	}
-	return SUCCESS;
 }
 
 /* func name: SGDB_OP_PrintStatus 
- * desc: 打印程序状态
+ * desc: 打印程序状态。命令的第二个参数为:r,打印寄存器状态;w,打印监视点的值.打印监视点时判断是否设置了监视点.
  * para: 
  *     cmd_parsed: 二维指针地址
  * ret:
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_PrintStatus(char ***cmd_parsed){
-	// 具体内容
-	return SUCCESS;
+	if((*cmd_parsed)[1] == NULL){
+		return ERROR;
+	}else if(strcmp((*cmd_parsed)[1],CmdMatchTable.sub_cmd1[0]) == 0){
+		// 打印寄存器	
+		return SUCCESS;
+	}else if(strcmp((*cmd_parsed)[1],CmdMatchTable.sub_cmd1[1]) == 0){
+		// 打印监视点
+		return SUCCESS;
+	}else{
+		return ERROR;
+	}
 }
 
 /* func name: SGDB_OP_ScanMem 
@@ -214,3 +226,18 @@ int SGDB_OP_DelMoniPoi(char ***cmd_parsed){
 	return SUCCESS;
 }
 
+static int Str2Digital(u_int32_t* N , char*** argv ,
+				u_int32_t MinNum, u_int32_t MaxNum){
+	char* endptr;
+	long int ret = strtol((*argv)[1] , &endptr , 10);
+	if( endptr == (*argv)[1] ) {
+		return ERROR;	// no digits were found	
+	}else if( *endptr == '\0' && // 判断是否指向字符串末尾
+		ret <= MaxNum &&	// 判断是否在合理范围内
+		ret >= MinNum) {
+		*N = ret;
+		return SUCCESS;
+	}else {
+		return ERROR;
+	}
+}
