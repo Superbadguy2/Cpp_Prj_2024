@@ -9,22 +9,31 @@ result_map = {
 test_cases = [
     (["info w"], result_map[True]),
     (["info r"], result_map[True]),
+    (["info   r"], result_map[True]),
+    (["info   w"], result_map[True]),
 
     (["info a"], result_map[False]),
     (["info  364d"], result_map[False]),
     (["info     \r"], result_map[False]),
+    (["info w 123"], result_map[False]),
+    (["info r -a*!!"], result_map[False]),
+    (["info w /sza"], result_map[False]),
 
     (["si 10"], result_map[True]),
     (["si 10086"], result_map[True]),
     (["si 0"], result_map[True]),
     (["si "], result_map[True]),
+    (["si   10"], result_map[True]),
 
     (["si -10"], result_map[False]),
     (["si -0"], result_map[True]),
     (["si abc"], result_map[False]),
-    (["si abc"], result_map[False]),
+    (["si ,abc"], result_map[False]),
     (["si 1.23"], result_map[False]),
-    (["si -0.23"], result_map[False])
+    (["si 100086"], result_map[False]),
+    (["si 10 15*!"], result_map[False]),
+    (["si 1.23 abc"], result_map[False]),
+    (["si -0.23"], result_map[False]),
 
 ]
 
@@ -34,25 +43,29 @@ def run_test(command, expected_output):
         # 将命令列表转换为一个空格分隔的字符串，作为子进程输入
         command_str = ' '.join(command)
 
-        # 调用外部程序，并提供标准输入（通过 input 参数）
-        result = subprocess.run(
-            ['./build/elf'],  # 执行命令
-            input=command_str,  # 向子进程提供标准输入
-            capture_output=True,  # 捕获标准输出和错误
-            text=True,            # 结果以文本格式返回
-            check=True            # 如果子进程返回非零退出状态，抛出异常
+        # 启动子进程，并控制输入输出
+        process = subprocess.Popen(
+            ['./build/elf'],           # 执行的程序
+            stdin=subprocess.PIPE,     # 允许我们向子进程传递输入
+            stdout=subprocess.PIPE,    # 捕获标准输出
+            stderr=subprocess.PIPE,    # 捕获标准错误
+            text=True                   # 使用文本模式
         )
 
+        # 向子进程逐行输入数据
+        stdout, stderr = process.communicate(input=command_str + '\n')  # 传递输入，并加上换行符
+
         # 获取程序输出
-        output = result.stdout
-        if output == expected_output:
+        if stdout == expected_output:
             print(f"Test passed for command: {command_str}")
         else:
             print(f"Test failed for command: {command_str}")
-            print(f"Expected: {expected_output}",end='')     # 不加额外换行
-            print(f"Got: {output}")     # 默认换行
+            print(f"Expected: {expected_output}")
+            print(f"Got: {stdout}")
 
     except subprocess.CalledProcessError as e:
+        print(f"Error running test for command: {command_str}: {e}")
+    except Exception as e:
         print(f"Error running test for command: {command_str}: {e}")
 
 def run_all_tests():

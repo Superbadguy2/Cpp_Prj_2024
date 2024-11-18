@@ -1,6 +1,6 @@
 CC = gcc
 # 移除-Werror
-CFLAGS = -O2 -g -Wall -Wextra -ggdb
+CFLAGS = -O2 -g -Wall -Wextra -ggdb -I/usr/include/readline
 
 SRC_DIR = src
 INC_DIR = include
@@ -15,7 +15,7 @@ all: $(TARGET)
 
 # Linking
 $(TARGET): $(OBJ_FILES)
-	$(CC) -o $@ $^
+	$(CC) -o $@ $^ -lreadline
 
 #  Compiling
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c

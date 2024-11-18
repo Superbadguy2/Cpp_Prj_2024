@@ -1,12 +1,19 @@
 #include "../include/StrParsing.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <regex.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
-static int Str2Digital(u_int32_t* N , char*** argv ,
-				u_int32_t MinNum, u_int32_t MaxNum);
-
+static const int MaxSingleExecStepTIMES = 65536;
+static const int MinSingleExecStepTIMES = 0;
 static const char* cmd_delim = " ";
+static const char* hexadecimal = "^0[xX][0-9a-fA-F]+$";
+static int Str2Digital(u_int32_t* N , char*** argv ,
+                u_int32_t MinNum, u_int32_t MaxNum); 
+static int ExprEval(const u_int32_t* argc , char** argv);
 
 /* 声明Cmd_Match_Table实例并初始化 */
 static const Cmd_Match_Table CmdMatchTable = {
@@ -39,8 +46,6 @@ operation_SGDB_func SGDB_OPs[SUB_CMD0_NUM] = {
 	SGDB_OP_DelMoniPoi
 };
 
-u_int8_t MoniPoiCount = 0;
-
 /* func name: cmd_read
  * desc: 输入字符串指针地址，读取一行字符串并函数字符串指针
  * para: 
@@ -49,20 +54,11 @@ u_int8_t MoniPoiCount = 0;
  *     char*:char类型指针
  *  */
 char* cmd_read(char **str_ptr){
-	/* 从标准准输入读取一行字符串 */
-	char temp_buffer[CMD_STR_NUM];	// 用于临时存储字符串
-	if(fgets(temp_buffer,sizeof(temp_buffer),stdin) != NULL){
-		/* 去掉换行符 */
-		/* temp_buffer[strcspn(temp_buffer,"\n")] = "\0"; */
-		/* 动态分配内存并复制输入字符串 */
-		/* *str_ptr = (char*)malloc((strlen(temp_buffer) + 1) * sizeof(char)); */
-		if(*str_ptr != NULL){
-			/* 复制字符串 */
-			strcpy(*str_ptr,temp_buffer);
-		}
-		return *str_ptr;
-	}
-	return NULL;
+	*str_ptr = readline("");
+	if(str_ptr != NULL)		return *str_ptr;
+	else	return NULL;
+	
+	
 }
 
 /* func name: par_cmd
@@ -137,19 +133,22 @@ int cmd0_match(char*** cmd_parsed,int* args){
 }
 
 /* func name: SGDB_OP_StepExec
- * desc: 单步执行，执行次数为N.strtol将字符串转换为长整型long int,判断字符是否为数字;将字符转换为数字;判断字符是否为整数且在合理范围内;
+ * desc: 单步执行，执行次数为N.strtol将字符串转换为长整型long int,判断字符是否为数字;将字符转换为数字;判断字符是否为整数且在合理范围内;Maximum number of executions is 65535
  * para: 
  *     cmd_parsed: 二维指针地址
  * ret:
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_StepExec(char*** cmd_parsed){
+	if((*cmd_parsed)[2] != NULL)	return ERROR;
 	if((*cmd_parsed)[1] == NULL){
 		// 执行一次
 		return SUCCESS;
 	}
 	u_int32_t N = 0;
-	if(Str2Digital(&N , cmd_parsed , 0 , 65535) == SUCCESS){
+	if(Str2Digital(&N , cmd_parsed ,
+		MinSingleExecStepTIMES ,
+		MaxSingleExecStepTIMES ) == SUCCESS){
 
 		return SUCCESS;	
 	}else {
@@ -165,12 +164,12 @@ int SGDB_OP_StepExec(char*** cmd_parsed){
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_PrintStatus(char ***cmd_parsed){
-	if((*cmd_parsed)[1] == NULL){
+	if((*cmd_parsed)[1] == NULL || (*cmd_parsed)[2] != NULL){
 		return ERROR;
 	}else if(strcmp((*cmd_parsed)[1],CmdMatchTable.sub_cmd1[0]) == 0){
 		// 打印寄存器	
 		return SUCCESS;
-	}else if(strcmp((*cmd_parsed)[1],CmdMatchTable.sub_cmd1[1]) == 0){
+	  }else if(strcmp((*cmd_parsed)[1],CmdMatchTable.sub_cmd1[1]) == 0){
 		// 打印监视点
 		return SUCCESS;
 	}else{
@@ -186,8 +185,19 @@ int SGDB_OP_PrintStatus(char ***cmd_parsed){
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_ScanMem(char ***cmd_parsed){
-	// 具体内容
-	return SUCCESS;
+	if((*cmd_parsed)[1] == NULL || (*cmd_parsed)[2] == NULL){
+		return ERROR;
+	}
+	u_int32_t N = 0;
+	u_int32_t MemPoi = 0x00000000;
+	/* 判断N是否在范围内,判断内存地址是否在相应范围内 */
+	if(Str2Digital(&N , cmd_parsed , MemPoi , MemSize/4/8 ) == SUCCESS &&
+		ExprEval(&MemPoi , *cmd_parsed) == SUCCESS){
+	/* Determine whether the address overflows after 4 consecutive N-byte outputs. */
+		return SUCCESS;
+	}else{
+		return ERROR;
+	}
 }
 
 /* func name: SGDB_OP_ExprEval 
@@ -226,6 +236,15 @@ int SGDB_OP_DelMoniPoi(char ***cmd_parsed){
 	return SUCCESS;
 }
 
+/* func name: Str2Digital
+ * desc: Determine if a string is an integer within a certain range.
+ * para:
+ *     N: Number of executions
+ *     argv: 2D String Pointer Address
+ *     MinNum: Numerical Lower Bound
+ *     MaxNum: Numerical Upper Bound
+ * ret:
+ *     int: Return value to indicate success or failure */
 static int Str2Digital(u_int32_t* N , char*** argv ,
 				u_int32_t MinNum, u_int32_t MaxNum){
 	char* endptr;
@@ -238,6 +257,38 @@ static int Str2Digital(u_int32_t* N , char*** argv ,
 		*N = ret;
 		return SUCCESS;
 	}else {
+		return ERROR;
+	}
+}
+
+static int ExprEval(const u_int32_t* argc , char** argv){
+	/* Checking for transgressions */
+
+	regex_t regex;
+	int reti;
+	/* Use to compile regular expressions,if the regular expression is invalid,it will return a non-zero value */
+	reti = regcomp(&regex , hexadecimal , REG_EXTENDED);
+
+	if(reti){
+		char errbuf[256];
+		regerror(reti , &regex , errbuf , sizeof(errbuf));
+		printf("Regex compilation failed : %s\n",errbuf);
+		return ERROR;
+	}
+
+	/* Use regexec function to match test string */
+	reti = regexec(&regex , argv[2] , 0 , NULL , 0);
+	if(reti == 0){
+		//
+		regfree(&regex);
+		return SUCCESS;
+	}else if(reti == REG_NOMATCH){
+		// 
+		regfree(&regex);
+		return ERROR;
+	}else{
+		// 
+		regfree(&regex);
 		return ERROR;
 	}
 }

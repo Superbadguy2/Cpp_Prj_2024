@@ -1,6 +1,6 @@
 #include "../include/StrParsing.h"
 
-int main(int argc, char *argv[]){
+int main(){
 	// 读入一行命令所需的变量
 	char *cmd_inct = (char*)malloc(CMD_STR_NUM * sizeof(char));
 	char **cmd_parsed = (char**)malloc(SUBCMD_NUM * sizeof(char*));
