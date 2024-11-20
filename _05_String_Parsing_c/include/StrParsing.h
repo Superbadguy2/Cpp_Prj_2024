@@ -30,6 +30,10 @@ int SGDB_OP_DelMoniPoi(char*** cmd_parsed);
 #define SUB_CMD1_NUM 2
 #define MONI_POI_NUM 20		// 监视点数量，最多20个
 #define MemSize 0x40000000
+#define DECIMAL 10
+#define HEXIDECIMAL 16
+#define BINARY 2
+#define OCTAL 8
 
 #define SUCCESS 1
 #define ERROR 0

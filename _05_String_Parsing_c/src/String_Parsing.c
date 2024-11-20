@@ -12,7 +12,8 @@ static const int MinSingleExecStepTIMES = 0;
 static const char* cmd_delim = " ";
 static const char* hexadecimal = "^0[xX][0-9a-fA-F]+$";
 static int Str2Digital(u_int32_t* N , char*** argv ,
-                u_int32_t MinNum, u_int32_t MaxNum); 
+                u_int32_t MinNum, u_int32_t MaxNum ,
+				u_int8_t Base_N); 
 static int ExprEval(const u_int32_t* argc , char** argv);
 
 /* 声明Cmd_Match_Table实例并初始化 */
@@ -146,9 +147,10 @@ int SGDB_OP_StepExec(char*** cmd_parsed){
 		return SUCCESS;
 	}
 	u_int32_t N = 0;
-	if(Str2Digital(&N , cmd_parsed ,
+	if(Str2Digital(&N , (*cmd_parsed)[1] ,
 		MinSingleExecStepTIMES ,
-		MaxSingleExecStepTIMES ) == SUCCESS){
+		MaxSingleExecStepTIMES ,
+		DECIMAL) == SUCCESS){
 
 		return SUCCESS;	
 	}else {
@@ -188,16 +190,7 @@ int SGDB_OP_ScanMem(char ***cmd_parsed){
 	if((*cmd_parsed)[1] == NULL || (*cmd_parsed)[2] == NULL){
 		return ERROR;
 	}
-	u_int32_t N = 0;
-	u_int32_t MemPoi = 0x00000000;
-	/* 判断N是否在范围内,判断内存地址是否在相应范围内 */
-	if(Str2Digital(&N , cmd_parsed , MemPoi , MemSize/4/8 ) == SUCCESS &&
-		ExprEval(&MemPoi , *cmd_parsed) == SUCCESS){
-	/* Determine whether the address overflows after 4 consecutive N-byte outputs. */
-		return SUCCESS;
-	}else{
-		return ERROR;
-	}
+	return SUCCESS;
 }
 
 /* func name: SGDB_OP_ExprEval 
@@ -239,17 +232,19 @@ int SGDB_OP_DelMoniPoi(char ***cmd_parsed){
 /* func name: Str2Digital
  * desc: Determine if a string is an integer within a certain range.
  * para:
- *     N: Number of executions
+ *     N: Used to recive converted string numbers 
  *     argv: 2D String Pointer Address
  *     MinNum: Numerical Lower Bound
  *     MaxNum: Numerical Upper Bound
+ *     Base_N: Binary of string numbers
  * ret:
  *     int: Return value to indicate success or failure */
-static int Str2Digital(u_int32_t* N , char*** argv ,
-				u_int32_t MinNum, u_int32_t MaxNum){
+static int Str2Digital(u_int32_t* N , char** argv ,
+				u_int32_t MinNum, u_int32_t MaxNum ,
+				u_int8_t Base_N){
 	char* endptr;
-	long int ret = strtol((*argv)[1] , &endptr , 10);
-	if( endptr == (*argv)[1] ) {
+	long int ret = strtol(*argv , &endptr , Base_N);
+	if( endptr == argv ) {
 		return ERROR;	// no digits were found	
 	}else if( *endptr == '\0' && // 判断是否指向字符串末尾
 		ret <= MaxNum &&	// 判断是否在合理范围内
@@ -258,7 +253,7 @@ static int Str2Digital(u_int32_t* N , char*** argv ,
 		return SUCCESS;
 	}else {
 		return ERROR;
-	}
+	} 
 }
 
 static int ExprEval(const u_int32_t* argc , char** argv){
