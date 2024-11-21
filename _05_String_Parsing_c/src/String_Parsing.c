@@ -11,10 +11,11 @@ static const int MaxSingleExecStepTIMES = 65536;
 static const int MinSingleExecStepTIMES = 0;
 static const char* cmd_delim = " ";
 static const char* hexadecimal = "^0[xX][0-9a-fA-F]+$";
-static int Str2Digital(u_int32_t* N , char*** argv ,
+static const char* _7BitPostiveInteger = "^(0|[1-9][0-9]{0,6})$";
+static int Str2Digital(u_int32_t* N , char** argv ,
                 u_int32_t MinNum, u_int32_t MaxNum ,
-				u_int8_t Base_N); 
-static int ExprEval(const u_int32_t* argc , char** argv);
+				u_int16_t Base_N); 
+static int ExprEvalMatch(const char* pattern , char** string);
 
 /* 声明Cmd_Match_Table实例并初始化 */
 static const Cmd_Match_Table CmdMatchTable = {
@@ -146,8 +147,9 @@ int SGDB_OP_StepExec(char*** cmd_parsed){
 		// 执行一次
 		return SUCCESS;
 	}
+	
 	u_int32_t N = 0;
-	if(Str2Digital(&N , (*cmd_parsed)[1] ,
+	if(Str2Digital(&N , &((*cmd_parsed)[1]) ,
 		MinSingleExecStepTIMES ,
 		MaxSingleExecStepTIMES ,
 		DECIMAL) == SUCCESS){
@@ -180,16 +182,27 @@ int SGDB_OP_PrintStatus(char ***cmd_parsed){
 }
 
 /* func name: SGDB_OP_ScanMem 
- * desc: 扫描内存 
+ * desc: 
+ *		input form: x N EXPR
+ *		desc: fine the value of the expression EXPR , use the result as the staring memory address , and output N consecutive  4-byte outputs in hexadecimal
  * para: 
- *     cmd_parsed: 二维指针地址
+ *		cmd_parsed: 二维指针地址
  * ret:
  *     int: 返回值，指示成功or失败
  *  */
 int SGDB_OP_ScanMem(char ***cmd_parsed){
+	/* Determine if an instruction is formatted coretly */
 	if((*cmd_parsed)[1] == NULL || (*cmd_parsed)[2] == NULL){
 		return ERROR;
 	}
+
+	/* Determine if byte data format is correct and if the range is reasonable */
+	int reti = -1;
+	reti = ExprEvalMatch(_7BitPostiveInteger, &((*cmd_parsed)[1]));
+	if( reti == SUCCESS){
+	return SUCCESS;
+	}
+	
 	return SUCCESS;
 }
 
@@ -241,10 +254,12 @@ int SGDB_OP_DelMoniPoi(char ***cmd_parsed){
  *     int: Return value to indicate success or failure */
 static int Str2Digital(u_int32_t* N , char** argv ,
 				u_int32_t MinNum, u_int32_t MaxNum ,
-				u_int8_t Base_N){
+				u_int16_t Base_N){
+
 	char* endptr;
 	long int ret = strtol(*argv , &endptr , Base_N);
-	if( endptr == argv ) {
+
+	if( endptr == *argv ) {
 		return ERROR;	// no digits were found	
 	}else if( *endptr == '\0' && // 判断是否指向字符串末尾
 		ret <= MaxNum &&	// 判断是否在合理范围内
@@ -256,13 +271,13 @@ static int Str2Digital(u_int32_t* N , char** argv ,
 	} 
 }
 
-static int ExprEval(const u_int32_t* argc , char** argv){
+static int ExprEvalMatch(const char* pattern, char** string){
 	/* Checking for transgressions */
 
 	regex_t regex;
 	int reti;
 	/* Use to compile regular expressions,if the regular expression is invalid,it will return a non-zero value */
-	reti = regcomp(&regex , hexadecimal , REG_EXTENDED);
+	reti = regcomp(&regex , pattern , REG_EXTENDED);
 
 	if(reti){
 		char errbuf[256];
@@ -272,7 +287,7 @@ static int ExprEval(const u_int32_t* argc , char** argv){
 	}
 
 	/* Use regexec function to match test string */
-	reti = regexec(&regex , argv[2] , 0 , NULL , 0);
+	reti = regexec(&regex , *string , 0 , NULL , 0);
 	if(reti == 0){
 		//
 		regfree(&regex);
