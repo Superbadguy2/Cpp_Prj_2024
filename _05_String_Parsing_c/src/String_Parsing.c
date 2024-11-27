@@ -15,7 +15,7 @@ static const char* _7BitPostiveInteger = "^(0|[1-9][0-9]{0,6})$";
 static int Str2Digital(u_int32_t* N , char** argv ,
                 u_int32_t MinNum, u_int32_t MaxNum ,
 				u_int16_t Base_N); 
-static int ExprEvalMatch(const char* pattern , char** string);
+static int MatchRegExpr(const char* pattern , char** string);
 
 /* 声明Cmd_Match_Table实例并初始化 */
 static const Cmd_Match_Table CmdMatchTable = {
@@ -198,7 +198,7 @@ int SGDB_OP_ScanMem(char ***cmd_parsed){
 
 	/* Determine if byte data format is correct and if the range is reasonable */
 	int reti = -1;
-	reti = ExprEvalMatch(_7BitPostiveInteger, &((*cmd_parsed)[1]));
+	reti = MatchRegExpr(_7BitPostiveInteger, &((*cmd_parsed)[1]));
 	if( reti == SUCCESS){
 	return SUCCESS;
 	}
@@ -271,7 +271,7 @@ static int Str2Digital(u_int32_t* N , char** argv ,
 	} 
 }
 
-static int ExprEvalMatch(const char* pattern, char** string){
+static int MatchRegExpr(const char* pattern, char** string){
 	/* Checking for transgressions */
 
 	regex_t regex;
